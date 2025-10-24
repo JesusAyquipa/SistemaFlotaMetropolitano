@@ -18,6 +18,13 @@ public class Bus {
         this.estado = estado;
     }
 
+    public Bus(String placa, String modelo, int kilometraje, String estado) {
+        this.placa = placa;
+        this.modelo = modelo;
+        this.kilometraje = kilometraje;
+        this.estado = estado;
+    }
+
     public int getIdBus() {
         return idBus;
     }

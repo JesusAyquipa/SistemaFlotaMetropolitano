@@ -1,11 +1,13 @@
 package controller;
 
 import java.util.List;
+import model.dao.BusDao;
 import model.entities.Bus;
 import model.service.BusService;
 
 public class BusController {
     private BusService busService = new BusService();
+    private BusDao dao = new BusDao();
 
     // Listar todos los buses
     public List<Bus> listarBuses() {
@@ -33,4 +35,6 @@ public class BusController {
     public Bus buscarBusPorPlaca(String placa) {
         return busService.buscarPorPlaca(placa);
     }
+
+
 }
