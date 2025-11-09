@@ -5,7 +5,10 @@ C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\controller\EstacionContro
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\controller\FallaController.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\controller\MantenimientoController.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\controller\RutaController.java
+C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\GestionAsignacionGUI.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\GestionBusesGUI.java
+C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\GestionEstacionesGUI.java
+C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\GestionMantenimientoGUI.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\model\dao\AsignacionDao.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\model\dao\BusDao.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\model\dao\EstacionDao.java
@@ -24,5 +27,5 @@ C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\model\service\EstacionSer
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\model\service\FallaService.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\model\service\MantenimientoService.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\model\service\RutaService.java
+C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\PDFGenerator.java
 C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\util\DBConnection.java
-C:\Users\arnie\SistemaFlotaMetropolitano\src\main\java\view\MainView.java

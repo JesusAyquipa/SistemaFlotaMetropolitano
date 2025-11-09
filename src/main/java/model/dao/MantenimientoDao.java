@@ -19,6 +19,7 @@ import util.DBConnection;
  */
 public class MantenimientoDao {
 
+
     public List<Mantenimiento> listarMantenimientos() {
         List<Mantenimiento> lista = new ArrayList<>();
         String sql = "SELECT * FROM mantenimiento";
@@ -44,6 +45,7 @@ public class MantenimientoDao {
 
         return lista;
     }
+
 
     public boolean insertarMantenimiento(Mantenimiento m) {
         String sql = "INSERT INTO mantenimiento (id_bus, tipo, fecha, kilometraje, descripcion) VALUES (?, ?, ?, ?, ?)";

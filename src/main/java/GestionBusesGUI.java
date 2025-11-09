@@ -6,6 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import model.entities.Bus;
+import java.io.File;
+import java.awt.Desktop;
+import javax.swing.JFileChooser;
 
 public class GestionBusesGUI extends JFrame {
     private JTable tablaBuses;
@@ -28,6 +31,7 @@ public class GestionBusesGUI extends JFrame {
 
     private void initComponents() {
         // Panel principal
+        
         JPanel panelPrincipal = new JPanel(new BorderLayout(10, 10));
         panelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -73,12 +77,14 @@ public class GestionBusesGUI extends JFrame {
         btnEliminar = new JButton("Eliminar");
         btnLimpiar = new JButton("Limpiar");
         btnBuscar = new JButton("Buscar por Placa");
+        JButton btnGenerarReportes = new JButton("Generar Reportes PDF");
 
         panelBotonesForm.add(btnRegistrar);
         panelBotonesForm.add(btnActualizar);
         panelBotonesForm.add(btnEliminar);
         panelBotonesForm.add(btnLimpiar);
         panelBotonesForm.add(btnBuscar);
+        panelBotonesForm.add(btnGenerarReportes);
 
         // Deshabilitar botones inicialmente
         btnActualizar.setEnabled(false);
@@ -112,8 +118,10 @@ public class GestionBusesGUI extends JFrame {
 
         // Agregar listeners
         agregarListeners();
+        btnGenerarReportes.addActionListener(e -> mostrarOpcionesReportes());
 
         add(panelPrincipal);
+        
     }
 
     private void agregarListeners() {
@@ -324,6 +332,217 @@ public class GestionBusesGUI extends JFrame {
             return false;
         }
         return true;
+    }
+
+    private void mostrarOpcionesReportes() {
+        String[] opciones = {
+            "Reporte de Estado de Flota",
+            "Reporte de Mantenimientos", 
+            "Reporte de Asignaciones Diarias",
+            "Cancelar"
+        };
+        
+        int seleccion = JOptionPane.showOptionDialog(
+            this,
+            "Seleccione el tipo de reporte a generar:",
+            "Generar Reportes PDF",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.INFORMATION_MESSAGE,
+            null,
+            opciones,
+            opciones[0]
+        );
+        
+        switch (seleccion) {
+            case 0:
+                generarReporteFlota();
+                break;
+            case 1:
+                generarReporteMantenimientos();
+                break;
+            case 2:
+                generarReporteAsignaciones();
+                break;
+            case 3:
+                // Cancelar - no hacer nada
+                break;
+            default:
+                // No selection
+                break;
+        }
+    }
+
+    private void generarReporteFlota() {
+        try {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Guardar Reporte de Flota");
+            fileChooser.setSelectedFile(new File("Reporte_Flota_Metropolitano.pdf"));
+            
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".pdf")) {
+                    filePath += ".pdf";
+                }
+                
+                List<Bus> buses = busController.listarBuses();
+                boolean exito = PDFGenerator.generarReporteFlota(buses, filePath);
+                
+                if (exito) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Reporte de flota generado exitosamente:\n" + filePath,
+                        "Reporte Generado", JOptionPane.INFORMATION_MESSAGE);
+                    
+                    // Preguntar si desea abrir el PDF
+                    int abrir = JOptionPane.showConfirmDialog(this,
+                        "¿Desea abrir el reporte generado?",
+                        "Abrir Reporte", JOptionPane.YES_NO_OPTION);
+                    
+                    if (abrir == JOptionPane.YES_OPTION) {
+                        Desktop.getDesktop().open(new File(filePath));
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                        "Error al generar el reporte",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                "Error: " + ex.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void generarReporteMantenimientos() {
+        try {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Guardar Reporte de Mantenimientos");
+            fileChooser.setSelectedFile(new File("Reporte_Mantenimientos_Metropolitano.pdf"));
+            
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".pdf")) {
+                    filePath += ".pdf";
+                }
+                
+                List<Bus> buses = busController.listarBuses();
+                
+                // Generar reporte básico de mantenimientos
+                com.itextpdf.text.Document document = new com.itextpdf.text.Document();
+                com.itextpdf.text.pdf.PdfWriter.getInstance(document, new java.io.FileOutputStream(filePath));
+                document.open();
+                
+                com.itextpdf.text.Font titleFont = com.itextpdf.text.FontFactory.getFont(com.itextpdf.text.FontFactory.HELVETICA_BOLD, 18, com.itextpdf.text.BaseColor.RED);
+                com.itextpdf.text.Paragraph title = new com.itextpdf.text.Paragraph("REPORTE DE MANTENIMIENTOS - METROPOLITANO", titleFont);
+                title.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+                title.setSpacingAfter(20);
+                document.add(title);
+                
+                // Fecha de generación
+                com.itextpdf.text.Font dateFont = com.itextpdf.text.FontFactory.getFont(com.itextpdf.text.FontFactory.HELVETICA, 10, com.itextpdf.text.BaseColor.GRAY);
+                com.itextpdf.text.Paragraph fecha = new com.itextpdf.text.Paragraph("Generado el: " + new java.util.Date(), dateFont);
+                fecha.setAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
+                fecha.setSpacingAfter(20);
+                document.add(fecha);
+                
+                // Alertas de mantenimiento
+                com.itextpdf.text.Font alertFont = com.itextpdf.text.FontFactory.getFont(com.itextpdf.text.FontFactory.HELVETICA_BOLD, 12, com.itextpdf.text.BaseColor.RED);
+                com.itextpdf.text.Paragraph alertas = new com.itextpdf.text.Paragraph("ALERTAS DE MANTENIMIENTO PENDIENTE:", alertFont);
+                alertas.setSpacingAfter(10);
+                document.add(alertas);
+                
+                // Buses que requieren mantenimiento (más de 10,000 km)
+                com.itextpdf.text.Font normalFont = com.itextpdf.text.FontFactory.getFont(com.itextpdf.text.FontFactory.HELVETICA, 10);
+                int alertasCount = 0;
+                for (Bus bus : buses) {
+                    if (bus.getKilometraje() > 10000) {
+                        com.itextpdf.text.Paragraph alerta = new com.itextpdf.text.Paragraph(
+                            "• Bus " + bus.getPlaca() + " (" + bus.getModelo() + 
+                            ") tiene " + bus.getKilometraje() + " km - Requiere mantenimiento preventivo", 
+                            normalFont
+                        );
+                        document.add(alerta);
+                        alertasCount++;
+                    }
+                }
+                
+                if (alertasCount == 0) {
+                    document.add(new com.itextpdf.text.Paragraph("No hay alertas de mantenimiento pendientes.", normalFont));
+                }
+                
+                document.close();
+                
+                JOptionPane.showMessageDialog(this, 
+                    "Reporte de mantenimientos generado exitosamente:\n" + filePath,
+                    "Reporte Generado", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                "Error: " + ex.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void generarReporteAsignaciones() {
+        try {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Guardar Reporte de Asignaciones");
+            fileChooser.setSelectedFile(new File("Reporte_Asignaciones_Metropolitano.pdf"));
+            
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".pdf")) {
+                    filePath += ".pdf";
+                }
+                
+                List<Bus> buses = busController.listarBuses();
+                
+                // Generar reporte básico de asignaciones
+                com.itextpdf.text.Document document = new com.itextpdf.text.Document();
+                com.itextpdf.text.pdf.PdfWriter.getInstance(document, new java.io.FileOutputStream(filePath));
+                document.open();
+                
+                com.itextpdf.text.Font titleFont = com.itextpdf.text.FontFactory.getFont(com.itextpdf.text.FontFactory.HELVETICA_BOLD, 18, com.itextpdf.text.BaseColor.GREEN);
+                com.itextpdf.text.Paragraph title = new com.itextpdf.text.Paragraph("REPORTE DE ASIGNACIONES - METROPOLITANO", titleFont);
+                title.setAlignment(com.itextpdf.text.Element.ALIGN_CENTER);
+                title.setSpacingAfter(20);
+                document.add(title);
+                
+                // Fecha de generación
+                com.itextpdf.text.Font dateFont = com.itextpdf.text.FontFactory.getFont(com.itextpdf.text.FontFactory.HELVETICA, 10, com.itextpdf.text.BaseColor.GRAY);
+                com.itextpdf.text.Paragraph fecha = new com.itextpdf.text.Paragraph("Generado el: " + new java.util.Date(), dateFont);
+                fecha.setAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
+                fecha.setSpacingAfter(20);
+                document.add(fecha);
+                
+                // Resumen de buses disponibles
+                com.itextpdf.text.Font normalFont = com.itextpdf.text.FontFactory.getFont(com.itextpdf.text.FontFactory.HELVETICA, 12);
+                int busesDisponibles = 0;
+                for (Bus bus : buses) {
+                    if ("DISPONIBLE".equalsIgnoreCase(bus.getEstado())) {
+                        busesDisponibles++;
+                    }
+                }
+                
+                com.itextpdf.text.Paragraph resumen = new com.itextpdf.text.Paragraph();
+                resumen.add(new com.itextpdf.text.Chunk("RESUMEN DE FLOTA:\n\n", com.itextpdf.text.FontFactory.getFont(com.itextpdf.text.FontFactory.HELVETICA_BOLD, 14)));
+                resumen.add(new com.itextpdf.text.Chunk("• Total de buses: " + buses.size() + "\n", normalFont));
+                resumen.add(new com.itextpdf.text.Chunk("• Buses disponibles: " + busesDisponibles + "\n", normalFont));
+                resumen.add(new com.itextpdf.text.Chunk("• Buses no disponibles: " + (buses.size() - busesDisponibles) + "\n\n", normalFont));
+                resumen.add(new com.itextpdf.text.Chunk("Nota: Este módulo mostrará las asignaciones de rutas cuando esté implementado completamente.", normalFont));
+                document.add(resumen);
+                
+                document.close();
+                
+                JOptionPane.showMessageDialog(this, 
+                    "Reporte de asignaciones generado exitosamente:\n" + filePath,
+                    "Reporte Generado", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                "Error: " + ex.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public static void main(String[] args) {

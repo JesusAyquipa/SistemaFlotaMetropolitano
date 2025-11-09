@@ -36,5 +36,16 @@ public class BusController {
         return busService.buscarPorPlaca(placa);
     }
 
+    public Bus buscarBusPorId(int idBus) {
+        // Implementación para buscar bus por ID
+        List<Bus> buses = listarBuses();
+        for (Bus bus : buses) {
+            if (bus.getIdBus() == idBus) {
+                return bus;
+            }
+        }
+        return null;
+    }
+
 
 }
